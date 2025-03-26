@@ -1,28 +1,42 @@
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Task } from './task-interfaces/task-list.interface';
 import { MatTableDataSource } from '@angular/material/table';
 import { TASK_DATA } from './task-data/task.data';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MaterialModule } from '../../shared/material.module';
-import { DatePipe } from '@angular/common';
-import { TaskFormComponent} from '../task-form/task-form.component';
-import {MatDialog} from '@angular/material/dialog';
+import { DatePipe, NgIf } from '@angular/common';
+import { TaskFormComponent } from '../task-form/task-form.component';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-task-list',
-  imports: [MaterialModule, DatePipe],
+  imports: [MaterialModule, DatePipe, NgIf],
   templateUrl: './task-list.component.html',
   styleUrl: './task-list.component.scss'
 })
-export class TaskListComponent implements AfterViewInit {
-  displayedColumns: string[] = ['id', 'title', 'priority', 'deadline'];
-  dataSource = new MatTableDataSource<Task>(TASK_DATA);
+export class TaskListComponent implements AfterViewInit, OnInit {
+  loading: boolean = true;
+  selectedTask: Task | null = null;
+  displayedColumns: string[] = ['id', 'title', 'priority', 'deadline', 'actions'];
+  dataSource: MatTableDataSource<Task> = new MatTableDataSource<Task>(TASK_DATA);
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
   constructor(private dialog: MatDialog) {}
+
+  ngOnInit() {
+    setTimeout(() => {
+      this.dataSource = new MatTableDataSource<Task>(TASK_DATA);
+      this.loading = false;
+    }, 1500);
+  }
+
+  ngAfterViewInit() {
+    this.dataSource.paginator = this.paginator;
+    this.dataSource.sort = this.sort;
+  }
 
   openTaskDialog(task?: Task) {
     const dialogRef = this.dialog.open(TaskFormComponent, {
@@ -46,8 +60,11 @@ export class TaskListComponent implements AfterViewInit {
     });
   }
 
-  ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
-    this.dataSource.sort = this.sort;
+  toggleDetails(task: Task) {
+    if (this.selectedTask === task) {
+      this.selectedTask = null;
+    } else {
+      this.selectedTask = task;
+    }
   }
 }

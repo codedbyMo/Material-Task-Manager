@@ -23,6 +23,7 @@ import {ReactiveFormsModule} from '@angular/forms';
 
 @NgModule({
   exports: [
+    MatExpansionModule,
     ReactiveFormsModule,
     MatFormFieldModule,
     MatInputModule,

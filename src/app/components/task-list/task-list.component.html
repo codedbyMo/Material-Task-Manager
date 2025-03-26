@@ -1,4 +1,8 @@
-<div class="task-table-container">
+<div *ngIf="loading" class="loading-spinner">
+  <mat-spinner></mat-spinner>
+</div>
+
+<div class="task-table-container" *ngIf="!loading">
   <button mat-raised-button color="primary" (click)="openTaskDialog()"> New Task </button>
 
   <table mat-table [dataSource]="dataSource" matSort>
@@ -23,10 +27,40 @@
       <td mat-cell *matCellDef="let task"> {{task.deadline | date}} </td>
     </ng-container>
 
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Actions </th>
+      <td mat-cell *matCellDef="let task">
+        <button mat-button color="accent" (click)="toggleDetails(task)"> Details </button>
+        <button mat-button color="primary" (click)="openTaskDialog(task)"> Edit </button>
+      </td>
+    </ng-container>
+
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openTaskDialog(row)" style="cursor:pointer;"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;" style="cursor:pointer;"></tr>
+<!--    <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="openTaskDialog(row)" style="cursor:pointer;"></tr>-->
 
   </table>
+
+  <mat-accordion *ngIf="selectedTask">
+    <mat-expansion-panel [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Task Details: {{ selectedTask.title }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <mat-tab-group>
+        <mat-tab label="Details">
+          <p><strong> Priority: </strong> {{ selectedTask.priority }} </p>
+          <p><strong> Deadline: </strong> {{ selectedTask.deadline | date }} </p>
+        </mat-tab>
+
+        <mat-tab label="Notes">
+          <p> Here you can display or edit notes for this task - coming soon </p>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-expansion-panel>
+  </mat-accordion>
 
   <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
 </div>
